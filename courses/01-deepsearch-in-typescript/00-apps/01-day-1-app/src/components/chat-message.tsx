@@ -1,7 +1,8 @@
 import ReactMarkdown, { type Components } from "react-markdown";
+import type { MessagePart } from "../types";
 
 interface ChatMessageProps {
-  text: string;
+  parts: MessagePart[];
   role: string;
   userName: string;
 }
@@ -38,7 +39,7 @@ const Markdown = ({ children }: { children: string }) => {
   return <ReactMarkdown components={components}>{children}</ReactMarkdown>;
 };
 
-export const ChatMessage = ({ text, role, userName }: ChatMessageProps) => {
+export const ChatMessage = ({ parts, role, userName }: ChatMessageProps) => {
   const isAI = role === "assistant";
 
   return (
@@ -53,7 +54,25 @@ export const ChatMessage = ({ text, role, userName }: ChatMessageProps) => {
         </p>
 
         <div className="prose prose-invert max-w-none">
-          <Markdown>{text}</Markdown>
+          {parts.map((part, index) => {
+            switch (part.type) {
+              case "text":
+                return <Markdown key={index}>{part.text}</Markdown>;
+              case "tool-invocation":
+                return (
+                  <div key={index} className="my-4 rounded-lg bg-gray-900 p-4">
+                    <p className="text-sm font-semibold text-gray-400">
+                      Tool Invocation
+                    </p>
+                    <pre className="mt-2 overflow-x-auto rounded-lg bg-gray-700 p-4">
+                      {JSON.stringify(part.toolInvocation, null, 2)}
+                    </pre>
+                  </div>
+                );
+              default:
+                return null;
+            }
+          })}
         </div>
       </div>
     </div>

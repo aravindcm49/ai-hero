@@ -94,6 +94,6 @@ export const searchSerper = async (
     body: JSON.stringify(body),
     signal,
   });
-
+  
   return results;
 };
