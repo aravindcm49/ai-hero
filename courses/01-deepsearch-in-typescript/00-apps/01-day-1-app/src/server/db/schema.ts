@@ -112,6 +112,47 @@ export const verificationTokens = createTable(
   }),
 );
 
+export const messages = createTable("message", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  chatId: varchar("chat_id", { length: 255 })
+    .notNull()
+    .references(() => chats.id),
+  role: varchar("role", { length: 255 }).notNull(),
+  parts: json("parts").notNull(),
+  order: integer("order").notNull(),
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+})
+
+export const chats = createTable("chat", {
+  id: varchar("id", { length: 255 })
+    .notNull()
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  title: varchar("title", { length: 255 }).notNull(),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`),
+})
+
+export const messagesRelations = relations(messages, ({ one }) => ({
+  chat: one(chats, { fields: [messages.chatId], references: [chats.id] }),
+}));
+
+export const chatsRelations = relations(chats, ({ many }) => ({
+  messages: many(messages),
+}));
+
+
 export declare namespace DB {
   export type User = InferSelectModel<typeof users>;
   export type NewUser = InferInsertModel<typeof users>;
@@ -126,4 +167,10 @@ export declare namespace DB {
   export type NewVerificationToken = InferInsertModel<
     typeof verificationTokens
   >;
+
+  export type Message = InferSelectModel<typeof messages>;
+  export type NewMessage = InferInsertModel<typeof messages>;
+  
+  export type Chat = InferSelectModel<typeof chats>;
+  export type NewChat = InferInsertModel<typeof chats>;
 }

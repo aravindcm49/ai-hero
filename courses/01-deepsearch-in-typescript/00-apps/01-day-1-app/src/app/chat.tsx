@@ -4,37 +4,82 @@ import { useChat } from "@ai-sdk/react";
 import { LoaderCircle } from "lucide-react";
 import { ChatMessage } from "~/components/chat-message";
 import { SignInModal } from "~/components/sign-in-modal";
-
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { isNewChatCreated } from "~/utils";
+import { type Message } from "ai";
+import { StickToBottom } from "use-stick-to-bottom";
 interface ChatProps {
   userName: string;
+  isAuthenticated: boolean;
+  chatId: string;
+  initialMessages: Message[];
+  isNewChat?: boolean;
 }
 
-export const ChatPage = ({ userName }: ChatProps) => {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat();
+export const ChatPage = ({
+  userName,
+  isAuthenticated,
+  chatId,
+  initialMessages,
+  isNewChat,
+}: ChatProps) => {
+  const { messages, input, handleInputChange, handleSubmit, status, data } =
+    useChat({
+      body: {
+        chatId,
+        isNewChat,
+      },
+      initialMessages,
+    });
+  const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    if (status === "submitted" || status === "streaming") {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+    }
+  }, [status]);
+
+  useEffect(() => {
+    const lastDataItem = data?.[data.length - 1] as {
+      type: string;
+      chatId: string;
+    };
+
+    if (lastDataItem && isNewChatCreated(lastDataItem)) {
+      router.push(`?id=${lastDataItem.chatId}`);
+    }
+  }, [data]);
 
   return (
     <>
       <div className="flex flex-1 flex-col">
-        <div
-          className="mx-auto w-full max-w-[65ch] flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500"
+        <StickToBottom
+          className="mx-auto w-full max-w-[65ch] flex-1 overflow-auto [&>div]:scrollbar-thin [&>div]:scrollbar-track-gray-800 [&>div]:scrollbar-thumb-gray-600 [&>div]:hover:scrollbar-thumb-gray-500"
+          resize="smooth"
+          initial="smooth"
           role="log"
           aria-label="Chat messages"
         >
-          {messages.map((message) => {
-            const parts = message.parts ?? [
-              { type: "text", text: message.content },
-            ];
-            return (
-              <ChatMessage
-                key={message.id}
-                parts={parts}
-                role={message.role}
-                userName={userName}
-              />
-            );
-          })}
-        </div>
+          <StickToBottom.Content className="flex flex-col gap-4 p-4">
+            {messages.map((message) => {
+              const parts = message.parts ?? [
+                { type: "text", text: message.content },
+              ];
+              return (
+                <ChatMessage
+                  key={message.id}
+                  parts={parts}
+                  role={message.role}
+                  userName={userName}
+                />
+              );
+            })}
+          </StickToBottom.Content>
+        </StickToBottom>
 
         <div className="border-t border-gray-700">
           <form onSubmit={handleSubmit} className="mx-auto max-w-[65ch] p-4">
