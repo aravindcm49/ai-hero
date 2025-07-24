@@ -8,6 +8,8 @@ export const checkFactuality = async (opts: {
   groundTruth: string;
   submission: string;
 }) => {
+  console.log("Entering checkFactuality function.");
+  console.log("Calling generateObject...");
   const { object } = await generateObject({
     model: factualityModel, // whichever model you want to use
     /**
@@ -46,6 +48,7 @@ export const checkFactuality = async (opts: {
         ),
     }),
   });
+  console.log("generateObject call completed.");
 
   /**
    * LLM's are well documented at being poor at generating
@@ -58,6 +61,7 @@ export const checkFactuality = async (opts: {
     E: 1,
   };
 
+  console.log("Exiting checkFactuality function.");
   return {
     score: scores[object.answer],
     metadata: {
@@ -65,14 +69,6 @@ export const checkFactuality = async (opts: {
     },
   };
 };
-
-export const checkFactuality_v2 = async (opts: {
-  question: string;
-  groundTruth: string;
-  submission: string;
-}) => {
-
-})
 
 // This is the scorer that can be passed into the scorers in Evalite
 export const Factuality = createScorer<
@@ -82,6 +78,7 @@ export const Factuality = createScorer<
 >({
   name: "Factuality",
   scorer: async ({ input, expected, output }) => {
+    console.log("Factuality scorer called.");
     return checkFactuality({
       question: input,
       groundTruth: expected!,

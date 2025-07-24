@@ -84,7 +84,7 @@ export async function POST(request: Request) {
           chatId: chatId,
         });
       }
-      const result = streamFromDeepSearch({
+      const result = await streamFromDeepSearch({
         messages,
         onFinish: async ({ response }) => {
           const responseMessages = response.messages;
@@ -121,6 +121,10 @@ export async function POST(request: Request) {
           functionId: 'agent',
           metadata: {
             langfuseTraceId: trace.id,
+            userId: session.user.id,
+            chatId: chatId,
+            initialMessageCount: messages.length,
+            isNewChat: !!isNewChat,
           },
         },
       });
