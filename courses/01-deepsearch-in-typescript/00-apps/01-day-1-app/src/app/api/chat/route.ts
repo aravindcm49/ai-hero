@@ -16,8 +16,6 @@ const config: RateLimitConfig = {
   windowMs: 60_000,
   keyPrefix: "global",
 };
-
-
 export async function POST(request: Request) {
   const session = await auth();
 
@@ -54,6 +52,7 @@ export async function POST(request: Request) {
 
   // const =
   //   oldChatId ??
+
   const trace = langfuse.trace({
     name: "chat",
     userId: session.user.id,
@@ -84,6 +83,7 @@ export async function POST(request: Request) {
           chatId: chatId,
         });
       }
+
       const result = await streamFromDeepSearch({
         messages,
         onFinish: async ({ response }) => {

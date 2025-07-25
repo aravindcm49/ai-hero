@@ -4591,7 +4591,6 @@ snapshots:
       fastq: 1.19.0
 
   '@nolyfill/is-core-module@1.0.39': {}
-
   '@opentelemetry/api-logs@0.203.0':
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -5287,7 +5286,6 @@ snapshots:
   cjs-module-lexer@1.4.3: {}
 
   client-only@0.0.1: {}
-
   cluster-key-slot@1.1.2: {}
 
   color-convert@2.0.1:

@@ -2,6 +2,8 @@
 id: lesson-f31ta
 ---
 
+(In the video above, I reference my Vercel AI SDK tutorial. [Here it is](https://www.aihero.dev/vercel-ai-sdk-tutorial)!)
+
 It's time to start making our app useful. It currently acts as a traditional chatbot: a naive ChatGPT clone.
 
 We're going to make it more useful by adding a search web tool.
